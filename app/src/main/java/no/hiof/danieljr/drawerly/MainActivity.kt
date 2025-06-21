@@ -11,7 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import no.hiof.danieljr.drawerly.ui.login.LoginScreen
+import no.hiof.danieljr.drawerly.ui.login.LoginViewModel
 import no.hiof.danieljr.drawerly.ui.theme.DrawerlyTheme
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -20,7 +23,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DrawerlyTheme {
-
+                //Tester
+                val loginViewModel: LoginViewModel = hiltViewModel()
+                LoginScreen(loginViewModel)
             }
         }
     }

@@ -1,4 +1,4 @@
-package no.hiof.danieljr.drawerly.components
+package no.hiof.danieljr.drawerly.ui.components
 
 import android.graphics.Color
 import androidx.compose.foundation.Image
