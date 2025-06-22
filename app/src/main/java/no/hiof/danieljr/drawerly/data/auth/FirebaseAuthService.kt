@@ -1,9 +1,12 @@
 package no.hiof.danieljr.drawerly.data.auth
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.suspendCancellableCoroutine
 import no.hiof.danieljr.drawerly.data.model.User
 import kotlin.coroutines.resume
+
+import com.google.firebase.auth.userProfileChangeRequest
 
 class FirebaseAuthService(private val auth: FirebaseAuth = FirebaseAuth.getInstance()) : AuthService {
 
@@ -30,8 +33,63 @@ class FirebaseAuthService(private val auth: FirebaseAuth = FirebaseAuth.getInsta
         }
     }
 
+    suspend fun register(email: String, password: String, name: String): Result<User> {
+        return suspendCancellableCoroutine { cont ->
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val firebaseUser = auth.currentUser
+                        if (firebaseUser != null) {
+                            // Oppdaterer visningsnavn
+                            val profileUpdates = userProfileChangeRequest {
+                                displayName = name
+                            }
+                            firebaseUser.updateProfile(profileUpdates)
+                                .addOnCompleteListener {
+                                    val user = User(
+                                        uid = firebaseUser.uid,
+                                        email = firebaseUser.email ?: "",
+                                        displayName = name
+                                    )
+                                    cont.resume(Result.success(user)) {}
+                                }
+                        } else {
+                            cont.resume(Result.failure(Exception("User is null after registration"))) {}
+                        }
+                    } else {
+                        cont.resume(Result.failure(task.exception ?: Exception("Registration failed"))) {}
+                    }
+                }
+        }
+    }
+
+
     override suspend fun logout() {
         auth.signOut()
+    }
+
+    suspend fun signInWithGoogle(idToken: String): Result<User> {
+        return suspendCancellableCoroutine { cont ->
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            auth.signInWithCredential(credential)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val firebaseUser = auth.currentUser
+                        if (firebaseUser != null) {
+                            val user = User(
+                                uid = firebaseUser.uid,
+                                email = firebaseUser.email ?: "",
+                                displayName = firebaseUser.displayName ?: ""
+                            )
+                            cont.resume(Result.success(user)) {}
+                        } else {
+                            cont.resume(Result.failure(Exception("User is null"))) {}
+                        }
+                    } else {
+                        cont.resume(Result.failure(task.exception ?: Exception("Google sign-in failed"))) {}
+                    }
+                }
+        }
     }
 
     override fun getCurrentUser(): User? {
@@ -43,3 +101,5 @@ class FirebaseAuthService(private val auth: FirebaseAuth = FirebaseAuth.getInsta
         )
     }
 }
+
+

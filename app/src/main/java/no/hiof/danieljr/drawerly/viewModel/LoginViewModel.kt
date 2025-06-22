@@ -2,6 +2,7 @@ package no.hiof.danieljr.drawerly.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,6 +17,7 @@ sealed class LoginState {
     data class Error(val error: String) : LoginState()
 }
 
+@HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
@@ -31,6 +33,18 @@ class LoginViewModel @Inject constructor(
                 LoginState.Success(result.getOrNull())
             } else {
                 LoginState.Error(result.exceptionOrNull()?.message ?: "Unknown error")
+            }
+        }
+    }
+
+    fun register(email: String, password: String, name: String) {
+        viewModelScope.launch {
+            _loginState.value = LoginState.Loading
+            val result = authRepository.register(email, password, name)
+            _loginState.value = if (result.isSuccess) {
+                LoginState.Success(result.getOrNull())
+            } else {
+                LoginState.Error(result.exceptionOrNull()?.message ?: "Registration failed")
             }
         }
     }
