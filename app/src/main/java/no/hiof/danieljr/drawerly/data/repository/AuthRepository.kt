@@ -11,20 +11,21 @@ interface AuthRepository {
     fun getCurrentUser(): User?
 }
 
-class AuthRepositoryImpl(private val authService: AuthService) : AuthRepository {
-    override suspend fun login(email: String, password: String) = authService.login(email, password)
-    override suspend fun register(
-        email: String,
-        password: String,
-        displayName: String
-    ): Result<User> {
-        TODO("Not yet implemented")
-    }
+class AuthRepositoryImpl(
+    private val authService: AuthService
+) : AuthRepository {
+    override suspend fun login(email: String, password: String) =
+        authService.login(email, password)
 
-    override suspend fun signInWithGoogle(idToken: String): Result<User> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun register(email: String, password: String, displayName: String): Result<User> =
+        authService.register(email, password, displayName)
 
-    override suspend fun logout() = authService.logout()
-    override fun getCurrentUser() = authService.getCurrentUser()
+    override suspend fun signInWithGoogle(idToken: String): Result<User> =
+        authService.signInWithGoogle(idToken)
+
+    override suspend fun logout() =
+        authService.logout()
+
+    override fun getCurrentUser(): User? =
+        authService.getCurrentUser()
 }

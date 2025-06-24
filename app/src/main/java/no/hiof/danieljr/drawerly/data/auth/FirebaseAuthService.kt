@@ -33,7 +33,7 @@ class FirebaseAuthService(private val auth: FirebaseAuth = FirebaseAuth.getInsta
         }
     }
 
-    suspend fun register(email: String, password: String, name: String): Result<User> {
+    override suspend fun register(email: String, password: String, name: String): Result<User> {
         return suspendCancellableCoroutine { cont ->
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
@@ -68,7 +68,7 @@ class FirebaseAuthService(private val auth: FirebaseAuth = FirebaseAuth.getInsta
         auth.signOut()
     }
 
-    suspend fun signInWithGoogle(idToken: String): Result<User> {
+    override suspend fun signInWithGoogle(idToken: String): Result<User> {
         return suspendCancellableCoroutine { cont ->
             val credential = GoogleAuthProvider.getCredential(idToken, null)
             auth.signInWithCredential(credential)

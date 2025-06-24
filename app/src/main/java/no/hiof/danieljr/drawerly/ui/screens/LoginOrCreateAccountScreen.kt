@@ -25,14 +25,12 @@ import androidx.compose.ui.unit.dp
 import no.hiof.danieljr.drawerly.R
 import no.hiof.danieljr.drawerly.ui.login.LoginState
 import no.hiof.danieljr.drawerly.ui.login.LoginViewModel
-import androidx.compose.material3.TextFieldDefaults
-
-
-
 
 @Composable
 fun LoginOrCreateAccountScreen(
     loginViewModel: LoginViewModel,
+    onLoginClick: () -> Unit,
+    onCreateAccountClick: () -> Unit,
     onGoogleLoginClick: () -> Unit,
     onGoogleCreateClick: () -> Unit
 ) {
@@ -40,13 +38,14 @@ fun LoginOrCreateAccountScreen(
 
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
+    val name = remember { mutableStateOf("") }
 
     val onLoginClick = {
         loginViewModel.login(email.value, password.value)
     }
 
     val onCreateAccountClick = {
-        loginViewModel.register(email.value, password.value, name = String)
+        loginViewModel.register(email.value, password.value, name = name.value)
     }
 
     val LavenderPurple = Color(0xFFB39DDB)
@@ -63,7 +62,7 @@ fun LoginOrCreateAccountScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        ResponsiveTopImage(R.drawable.doodles_5960094_1280)
+        ResponsiveTopImage(R.drawable.drawerly)
 
         Box(
             modifier = Modifier
@@ -108,6 +107,8 @@ fun LoginOrCreateAccountScreen(
                         onEmailChange = { email.value = it },
                         password = password.value,
                         onPasswordChange = { password.value = it },
+                        name = name.value,
+                        onNameChange = { name.value = it },
                         onMainButtonClick = onCreateAccountClick,
                         onGoogleClick = onGoogleCreateClick
                     )
@@ -154,6 +155,8 @@ fun GlassCard(
     onEmailChange: (String) -> Unit,
     password: String,
     onPasswordChange: (String) -> Unit,
+    name: String = "",
+    onNameChange: (String) -> Unit = {},
     onMainButtonClick: () -> Unit,
     onGoogleClick: () -> Unit
 ) {
@@ -182,8 +185,12 @@ fun GlassCard(
             InputField(label = "Email", value = email, onValueChange = onEmailChange)
             Spacer(modifier = Modifier.height(10.dp))
             InputField(label = "Password", value = password, onValueChange = onPasswordChange)
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onMainButtonClick) {
+            Spacer(modifier = Modifier.height(10.dp))
+            if (title.contains("Add", ignoreCase = true)) {
+                InputField(label = "Username", value = name, onValueChange = onNameChange)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            Button(onClick = onMainButtonClick, modifier = Modifier.fillMaxWidth()) {
                 Text("Submit")
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -221,11 +228,12 @@ fun InputField(label: String, value: String, onValueChange: (String) -> Unit) {
         onValueChange = onValueChange,
         label = { Text(label, color = Color.White) },
         textStyle = TextStyle(color = Color.White),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            containerColor = Color.Transparent,
-            focusedBorderColor = Color.White.copy(alpha = 0.5f),
-            unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
-            cursorColor = Color.White
-        )
+       // colors = TextFieldDefaults.outlinedTextFieldColors(
+       //     containerColor = Color.Transparent,
+       //     focusedBorderColor = Color.White.copy(alpha = 0.5f),
+       //     unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+       //     cursorColor = Color.White
+       // )
     )
 }
+

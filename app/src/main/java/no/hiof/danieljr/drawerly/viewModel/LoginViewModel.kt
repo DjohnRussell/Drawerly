@@ -49,6 +49,19 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    fun signInWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _loginState.value = LoginState.Loading
+            val result = authRepository.signInWithGoogle(idToken)
+            _loginState.value = if (result.isSuccess) {
+                LoginState.Success(result.getOrNull())
+            } else {
+                LoginState.Error(result.exceptionOrNull()?.message ?: "Google sign-in failed")
+            }
+        }
+    }
+
+
     fun logout() {
         viewModelScope.launch {
             authRepository.logout()

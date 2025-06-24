@@ -15,6 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import no.hiof.danieljr.drawerly.ui.login.LoginScreen
 import no.hiof.danieljr.drawerly.ui.login.LoginViewModel
+import no.hiof.danieljr.drawerly.ui.screens.LoginOrCreateAccountScreen
 import no.hiof.danieljr.drawerly.ui.theme.DrawerlyTheme
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -25,7 +26,8 @@ class MainActivity : ComponentActivity() {
             DrawerlyTheme {
                 //Tester
                 val loginViewModel: LoginViewModel = hiltViewModel()
-                LoginScreen(loginViewModel)
+                //LoginScreen(loginViewModel)
+                LoginOrCreateAccountScreen(loginViewModel ) { }
             }
         }
     }
