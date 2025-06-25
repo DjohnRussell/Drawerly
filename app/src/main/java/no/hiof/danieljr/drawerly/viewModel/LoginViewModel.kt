@@ -1,5 +1,9 @@
 package no.hiof.danieljr.drawerly.ui.login
 
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,6 +13,7 @@ import kotlinx.coroutines.launch
 import no.hiof.danieljr.drawerly.data.repository.AuthRepository
 import no.hiof.danieljr.drawerly.data.model.User
 import javax.inject.Inject
+
 
 sealed class LoginState {
     object Idle : LoginState()
@@ -21,6 +26,38 @@ sealed class LoginState {
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
+
+    var email by mutableStateOf("")
+        private set
+
+    var password by mutableStateOf("")
+        private set
+
+    var name by mutableStateOf("")
+        private set
+
+    fun onEmailChange(newEmail: String) {
+        email = newEmail
+    }
+
+    fun onPasswordChange(newPassword: String) {
+        password = newPassword
+    }
+
+    fun onNameChange(newName: String) {
+        name = newName
+    }
+
+    fun onLoginClick() {
+        login(email, password)
+    }
+
+    fun onCreateAccountClick() {
+        Log.d("LoginViewModel", "onCreateAccountClick called with email=$email, password=$password, name=$name")
+        register(email, password, name)
+    }
+
+
 
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState: StateFlow<LoginState> = _loginState

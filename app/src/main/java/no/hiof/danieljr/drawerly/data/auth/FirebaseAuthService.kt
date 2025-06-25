@@ -40,18 +40,21 @@ class FirebaseAuthService(private val auth: FirebaseAuth = FirebaseAuth.getInsta
                     if (task.isSuccessful) {
                         val firebaseUser = auth.currentUser
                         if (firebaseUser != null) {
-                            // Oppdaterer visningsnavn
                             val profileUpdates = userProfileChangeRequest {
                                 displayName = name
                             }
                             firebaseUser.updateProfile(profileUpdates)
-                                .addOnCompleteListener {
-                                    val user = User(
-                                        uid = firebaseUser.uid,
-                                        email = firebaseUser.email ?: "",
-                                        displayName = name
-                                    )
-                                    cont.resume(Result.success(user)) {}
+                                .addOnCompleteListener { updateTask ->
+                                    if (updateTask.isSuccessful) {
+                                        val user = User(
+                                            uid = firebaseUser.uid,
+                                            email = firebaseUser.email ?: "",
+                                            displayName = name
+                                        )
+                                        cont.resume(Result.success(user)) {}
+                                    } else {
+                                        cont.resume(Result.failure(updateTask.exception ?: Exception("Failed to update profile"))) {}
+                                    }
                                 }
                         } else {
                             cont.resume(Result.failure(Exception("User is null after registration"))) {}
@@ -62,6 +65,7 @@ class FirebaseAuthService(private val auth: FirebaseAuth = FirebaseAuth.getInsta
                 }
         }
     }
+
 
 
     override suspend fun logout() {

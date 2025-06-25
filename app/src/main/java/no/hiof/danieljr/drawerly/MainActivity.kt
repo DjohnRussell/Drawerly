@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
                 //Tester
                 val loginViewModel: LoginViewModel = hiltViewModel()
                 //LoginScreen(loginViewModel)
-                LoginOrCreateAccountScreen(loginViewModel ) { }
+                LoginOrCreateAccountScreen(loginViewModel, {} ) { }
             }
         }
     }

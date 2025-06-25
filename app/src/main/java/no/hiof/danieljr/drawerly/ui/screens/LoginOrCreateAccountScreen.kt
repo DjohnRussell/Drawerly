@@ -29,24 +29,11 @@ import no.hiof.danieljr.drawerly.ui.login.LoginViewModel
 @Composable
 fun LoginOrCreateAccountScreen(
     loginViewModel: LoginViewModel,
-    onLoginClick: () -> Unit,
-    onCreateAccountClick: () -> Unit,
     onGoogleLoginClick: () -> Unit,
     onGoogleCreateClick: () -> Unit
 ) {
     val loginState by loginViewModel.loginState.collectAsState()
-
-    val email = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
-    val name = remember { mutableStateOf("") }
-
-    val onLoginClick = {
-        loginViewModel.login(email.value, password.value)
-    }
-
-    val onCreateAccountClick = {
-        loginViewModel.register(email.value, password.value, name = name.value)
-    }
+    
 
     val LavenderPurple = Color(0xFFB39DDB)
     val DarkLavenderPurple = Color(0xFF7E57C2)
@@ -90,28 +77,32 @@ fun LoginOrCreateAccountScreen(
                         title = "Login",
                         subtitle = "or sign in with",
                         swipeText = "Swipe to create account",
-                        email = email.value,
-                        onEmailChange = { email.value = it },
-                        password = password.value,
-                        onPasswordChange = { password.value = it },
-                        onMainButtonClick = onLoginClick,
-                        onGoogleClick = onGoogleLoginClick
+                        email = loginViewModel.email,
+                        onEmailChange = loginViewModel::onEmailChange,
+                        password = loginViewModel.password,
+                        onPasswordChange = loginViewModel::onPasswordChange,
+                        onMainButtonClick = loginViewModel::onLoginClick,
+                        onGoogleClick = onGoogleLoginClick,
+                        btnText = "Login"
                     )
+
                 }
                 item {
                     GlassCard(
                         title = "Add Account",
                         subtitle = "or create account with",
                         swipeText = "",
-                        email = email.value,
-                        onEmailChange = { email.value = it },
-                        password = password.value,
-                        onPasswordChange = { password.value = it },
-                        name = name.value,
-                        onNameChange = { name.value = it },
-                        onMainButtonClick = onCreateAccountClick,
-                        onGoogleClick = onGoogleCreateClick
+                        email = loginViewModel.email,
+                        onEmailChange = loginViewModel::onEmailChange,
+                        password = loginViewModel.password,
+                        onPasswordChange = loginViewModel::onPasswordChange,
+                        name = loginViewModel.name,
+                        onNameChange = loginViewModel::onNameChange,
+                        onMainButtonClick = loginViewModel::onCreateAccountClick,
+                        onGoogleClick = onGoogleCreateClick,
+                        btnText = "Add Account"
                     )
+
                 }
                 item { Spacer(modifier = Modifier.width(6.dp)) }
             }
@@ -158,7 +149,8 @@ fun GlassCard(
     name: String = "",
     onNameChange: (String) -> Unit = {},
     onMainButtonClick: () -> Unit,
-    onGoogleClick: () -> Unit
+    onGoogleClick: () -> Unit,
+    btnText : String
 ) {
     Box(
         modifier = Modifier
@@ -190,8 +182,10 @@ fun GlassCard(
                 InputField(label = "Username", value = name, onValueChange = onNameChange)
                 Spacer(modifier = Modifier.height(16.dp))
             }
-            Button(onClick = onMainButtonClick, modifier = Modifier.fillMaxWidth()) {
-                Text("Submit")
+            Button(onClick = onMainButtonClick
+
+                , modifier = Modifier.fillMaxWidth()) {
+                Text(btnText)
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(text = subtitle, color = Color.White, style = MaterialTheme.typography.bodyMedium)
