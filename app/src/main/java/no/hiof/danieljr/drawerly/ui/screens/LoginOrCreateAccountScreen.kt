@@ -1,28 +1,25 @@
 package no.hiof.danieljr.drawerly.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import no.hiof.danieljr.drawerly.R
+import no.hiof.danieljr.drawerly.ui.components.*
 import no.hiof.danieljr.drawerly.ui.login.LoginState
 import no.hiof.danieljr.drawerly.ui.login.LoginViewModel
 
@@ -33,112 +30,130 @@ fun LoginOrCreateAccountScreen(
     onGoogleCreateClick: () -> Unit
 ) {
     val loginState by loginViewModel.loginState.collectAsState()
-    
+    val isLoading = loginState is LoginState.Loading
 
-    val LavenderPurple = Color(0xFFB39DDB)
-    val DarkLavenderPurple = Color(0xFF7E57C2)
-    val DarkerLavenderPurple = Color(0xFF5E35B1)
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
-
-    val boxHeight = if (screenHeight < 700.dp) {
-        screenHeight * 0.85f
+    if (isLoading) {
+        ShimmerScreen()
     } else {
-        screenHeight * 0.75f
-    }
+        val LavenderPurple = Color(0xFFB39DDB)
+        val DarkLavenderPurple = Color(0xFF7E57C2)
+        val DarkerLavenderPurple = Color(0xFF5E35B1)
+        val configuration = LocalConfiguration.current
+        val screenHeight = configuration.screenHeightDp.dp
+        val screenWidth = configuration.screenWidthDp.dp
 
-    Box(modifier = Modifier.fillMaxSize()) {
+        val boxHeight = if (screenHeight < 700.dp) {
+            screenHeight * 0.85f
+        } else {
+            screenHeight * 0.75f
+        }
 
-        ResponsiveTopImage(R.drawable.drawerly)
+        val pagerState = rememberPagerState(pageCount = { 2 })
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(boxHeight)
-                .align(Alignment.BottomCenter)
-                .clip(RoundedCornerShape(topStart = 42.dp, topEnd = 42.dp))
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(LavenderPurple, DarkLavenderPurple, DarkerLavenderPurple)
-                    )
-                )
-        ) {
-            LazyRow(
+        Box(modifier = Modifier.fillMaxSize()) {
+            ResponsiveTopImage(R.drawable.drawerly)
+
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                contentPadding = PaddingValues(horizontal = 10.dp)
+                    .fillMaxWidth()
+                    .height(boxHeight)
+                    .align(Alignment.BottomCenter)
+                    .clip(RoundedCornerShape(topStart = 42.dp, topEnd = 42.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(LavenderPurple, DarkLavenderPurple, DarkerLavenderPurple)
+                        )
+                    )
             ) {
-                item { Spacer(modifier = Modifier.width(6.dp)) }
-                item {
-                    GlassCard(
-                        title = "Login",
-                        subtitle = "or sign in with",
-                        swipeText = "Swipe to create account",
-                        email = loginViewModel.email,
-                        onEmailChange = loginViewModel::onEmailChange,
-                        password = loginViewModel.password,
-                        onPasswordChange = loginViewModel::onPasswordChange,
-                        onMainButtonClick = loginViewModel::onLoginClick,
-                        onGoogleClick = onGoogleLoginClick,
-                        btnText = "Login"
-                    )
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(32.dp))
+                    
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxWidth(),
+                        pageSpacing = 16.dp,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) { page ->
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (page == 0) {
+                                LoginGlassCard(
+                                    title = "Login",
+                                    subtitle = "or sign in with",
+                                    swipeText = "Swipe for Register",
+                                    email = loginViewModel.email,
+                                    onEmailChange = loginViewModel::onEmailChange,
+                                    password = loginViewModel.password,
+                                    onPasswordChange = loginViewModel::onPasswordChange,
+                                    onMainButtonClick = loginViewModel::onLoginClick,
+                                    onGoogleClick = onGoogleLoginClick,
+                                    btnText = "Login"
+                                )
+                            } else {
+                                LoginGlassCard(
+                                    title = "Add Account",
+                                    subtitle = "or create account with",
+                                    swipeText = "Swipe for Login",
+                                    email = loginViewModel.email,
+                                    onEmailChange = loginViewModel::onEmailChange,
+                                    password = loginViewModel.password,
+                                    onPasswordChange = loginViewModel::onPasswordChange,
+                                    name = loginViewModel.name,
+                                    onNameChange = loginViewModel::onNameChange,
+                                    onMainButtonClick = loginViewModel::onCreateAccountClick,
+                                    onGoogleClick = onGoogleCreateClick,
+                                    btnText = "Add Account"
+                                )
+                            }
+                        }
+                    }
 
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Page indicator
+                    Row(
+                        Modifier
+                            .height(20.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        repeat(2) { iteration ->
+                            val color = if (pagerState.currentPage == iteration) Color.White else Color.White.copy(alpha = 0.5f)
+                            Box(
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(color)
+                                    .size(8.dp)
+                            )
+                        }
+                    }
                 }
-                item {
-                    GlassCard(
-                        title = "Add Account",
-                        subtitle = "or create account with",
-                        swipeText = "",
-                        email = loginViewModel.email,
-                        onEmailChange = loginViewModel::onEmailChange,
-                        password = loginViewModel.password,
-                        onPasswordChange = loginViewModel::onPasswordChange,
-                        name = loginViewModel.name,
-                        onNameChange = loginViewModel::onNameChange,
-                        onMainButtonClick = loginViewModel::onCreateAccountClick,
-                        onGoogleClick = onGoogleCreateClick,
-                        btnText = "Add Account"
-                    )
-
-                }
-                item { Spacer(modifier = Modifier.width(6.dp)) }
             }
         }
     }
 
-    Spacer(modifier = Modifier.height(16.dp))
-    when (loginState) {
-        is LoginState.Loading -> Text("Logger inn...")
-        is LoginState.Success -> Text("Innlogging vellykket!")
-        is LoginState.Error -> Text("Feil: ${(loginState as LoginState.Error).error}")
-        else -> {}
-    }
-}
-
-@Composable
-fun ResponsiveTopImage(resourceId: Int) {
-    BoxWithConstraints {
-        val imageHeight = if (maxHeight < 700.dp) maxHeight * 0.15f else maxHeight * 0.3f
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(imageHeight)
-        ) {
-            Image(
-                painter = painterResource(resourceId),
-                contentDescription = "Top background",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
+    // Show error messages if any
+    if (loginState is LoginState.Error) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+            Snackbar(
+                modifier = Modifier.padding(16.dp).padding(bottom = 32.dp),
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer
+            ) {
+                Text((loginState as LoginState.Error).error)
+            }
         }
     }
 }
 
 @Composable
-fun GlassCard(
+fun LoginGlassCard(
     title: String,
     subtitle: String,
     swipeText: String,
@@ -150,84 +165,67 @@ fun GlassCard(
     onNameChange: (String) -> Unit = {},
     onMainButtonClick: () -> Unit,
     onGoogleClick: () -> Unit,
-    btnText : String
+    btnText: String
 ) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.40f),
-                        Color.White.copy(alpha = 0.10f)
-                    )
-                )
-            )
-            .blur(16.dp)
-            .border(
-                width = 1.dp,
-                color = Color.White.copy(alpha = 0.2f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(16.dp)
+    GlassCard(
+        modifier = Modifier.width(300.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = title, color = Color.White, style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(10.dp))
-            InputField(label = "Email", value = email, onValueChange = onEmailChange)
-            Spacer(modifier = Modifier.height(10.dp))
-            InputField(label = "Password", value = password, onValueChange = onPasswordChange)
-            Spacer(modifier = Modifier.height(10.dp))
-            if (title.contains("Add", ignoreCase = true)) {
-                InputField(label = "Username", value = name, onValueChange = onNameChange)
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            Button(onClick = onMainButtonClick
-
-                , modifier = Modifier.fillMaxWidth()) {
-                Text(btnText)
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(text = subtitle, color = Color.White, style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = title,
+            color = Color.White,
+            style = MaterialTheme.typography.headlineSmall
+        )
+        SpaceEm(20)
+        InputField(label = "Email", value = email, onValueChange = onEmailChange)
+        SpaceEm(12)
+        InputField(label = "Password", value = password, onValueChange = onPasswordChange)
+        
+        if (title.contains("Add", ignoreCase = true)) {
+            SpaceEm(12)
+            InputField(label = "Username", value = name, onValueChange = onNameChange)
+        }
+        
+        SpaceEm(24)
+        
+        // Bruker den nye PrimaryButton her
+        PrimaryButton(
+            text = btnText,
+            onClick = onMainButtonClick
+        )
+        
+        SpaceEm(24)
+        Text(
+            text = subtitle,
+            color = Color.White.copy(alpha = 0.8f),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        SpaceEm(12)
+        IconButton(
+            onClick = onGoogleClick,
+            modifier = Modifier.size(48.dp)
+        ) {
             Icon(
                 painter = painterResource(id = R.drawable.google),
                 contentDescription = "Google",
-                tint = Color.Unspecified,
-                modifier = Modifier
-                    .size(58.dp)
-                    .clickable { onGoogleClick() }
+                tint = Color.Unspecified
             )
-            Spacer(modifier = Modifier.height(10.dp))
-            if (swipeText.isNotEmpty()) {
-                Row {
-                    Text(text = swipeText, color = Color.White, style = MaterialTheme.typography.bodySmall)
-                    Icon(
-                        Icons.Default.KeyboardArrowRight,
-                        contentDescription = "Arrow",
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
+        }
+        
+        if (swipeText.isNotEmpty()) {
+            SpaceEm(16)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = swipeText,
+                    color = Color.White.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Icon(
+                    if (title == "Login") Icons.AutoMirrored.Filled.KeyboardArrowRight else Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = null,
+                    tint = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun InputField(label: String, value: String, onValueChange: (String) -> Unit) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label, color = Color.White) },
-        textStyle = TextStyle(color = Color.White),
-       // colors = TextFieldDefaults.outlinedTextFieldColors(
-       //     containerColor = Color.Transparent,
-       //     focusedBorderColor = Color.White.copy(alpha = 0.5f),
-       //     unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
-       //     cursorColor = Color.White
-       // )
-    )
-}
-

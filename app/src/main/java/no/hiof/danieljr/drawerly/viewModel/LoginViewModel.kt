@@ -57,10 +57,10 @@ class LoginViewModel @Inject constructor(
         register(email, password, name)
     }
 
-
-
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState: StateFlow<LoginState> = _loginState
+
+    fun getCurrentUser() = authRepository.getCurrentUser()
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
